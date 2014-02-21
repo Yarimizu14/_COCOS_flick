@@ -67,8 +67,9 @@ bool Gravity::init()
     touchListener->onTouchBegan = CC_CALLBACK_2(Gravity::touchBegan, this);
    
     getEventDispatcher()->addEventListenerWithFixedPriority(touchListener, 100);
-    
     schedule(schedule_selector(Gravity::tick));
+   
+    Gravity::createBackground();
     
     return true;
 }
@@ -78,6 +79,32 @@ bool Gravity::touchBegan(Touch* touch, Event* event) {
     Gravity::createStar(touch->getLocation());
    
     return true;
+}
+
+
+void Gravity::createBackground() {
+    Size winSize = Director::sharedDirector()->getWinSize();
+    log("%f", winSize.width);
+    log("%f", winSize.height);
+   
+    Sprite* pBgUnder = Sprite::create("ground.png");
+    pBgUnder->setPosition(ccp(winSize.width*0.5, winSize.height*0.5));
+    this->addChild(p
+    
+    Node* pGround = Node::create();
+    this->addChild(pGround);
+    
+    b2BodyDef groundBodyDef;
+    groundBodyDef.position.Set(0, 0);
+    groundBodyDef.userData = pGround;
+    
+    b2Body* groundBody = world->CreateBody(&groundBodyDef);
+    
+    float groundHeight = WORLD_TO_SCREEN(10);
+    
+    b2EdgeShape groundBox;
+    groundBox.Set(b2Vec2(0, 10), b2Vec2(winSize.width / PTM_RATIO, 10));
+    groundBody->CreateFixture(&groundBox, 0);
 }
 
 void Gravity::createStar(Point p) {
@@ -112,13 +139,12 @@ void Gravity::tick(float dt) {
 
     world->Step(dt, velocityIteration, positionIteration);
     
-    log("====");
     for (auto b = world->GetBodyList(); b; b = b->GetNext()) {
         if (b->GetUserData() != NULL) {
             auto myActor = (Sprite*) b->GetUserData();
             myActor->setPosition(Point(b->GetPosition().x, b->GetPosition().y));
             
-            log("Position: %f, %f", b->GetPosition().x, b->GetPosition().y);
+            //log("Position: %f, %f", b->GetPosition().x, b->GetPosition().y);
             
             myActor->setRotation(-1 * CC_RADIANS_TO_DEGREES(b->GetAngle()));
             

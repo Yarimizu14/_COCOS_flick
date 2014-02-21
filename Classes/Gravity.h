@@ -23,6 +23,7 @@ public:
     void menuCloseCallback(Object* pSender);
    
     void tick(float dt);
+    void createBackground();
     void createStar(Point p);
     bool touchBegan(Touch *touch, Event* event);
     
